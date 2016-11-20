@@ -1,0 +1,37 @@
+*.blend1*
+*.o
+*.d
+*.so
+*.dylib
+*.a
+obj
+bin
+doc
+build
+test-results
+
+# =============== #
+# Unity generated #
+# =============== #
+[Tt]emp/
+[Oo]bj/
+[Bb]uild
+[Ll]ibrary/
+sysinfo.txt
+*.app
+*.exe
+*_Data/
+
+# ===================================== #
+# Visual Studio / MonoDevelop generated #
+# ===================================== #
+[Ee]xported[Oo]bj/
+*.userprefs
+*.csproj
+*.pidb
+*.suo
+*.sln*
+*.user
+*.unityproj
+*.booproj
+.vs

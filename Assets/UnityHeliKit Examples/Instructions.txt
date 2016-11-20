@@ -1,0 +1,7 @@
+You need a joystick or game pad controller at a minimum to control the helicopter.
+
+The example scenes are pre-configured to run with an Xbox controller.
+
+If you're using a joystick (with a throttle and twist grip or pedals), change control 
+mapping in the input preferences, and turn off the "trim control" flag on the helicopter,
+under the Fcs (flight control system) section.

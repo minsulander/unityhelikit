@@ -1,0 +1,4 @@
+A109 3D model is my own not-so-beautiful creation.
+Instrument textures various sources, hoping it's OK to use them.
+Sounds from the Gmax A109 package for MS Flight Simulator, by Alan Devins.
+Building textures from rockthe3d.com
