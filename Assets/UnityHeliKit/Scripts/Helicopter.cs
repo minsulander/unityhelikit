@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 public class Helicopter : MonoBehaviour {
 
-	public bool airStart;
+	public bool airStart = true;
 
 	public Rotor mainRotor;
 	public Rotor tailRotor;
@@ -17,11 +17,6 @@ public class Helicopter : MonoBehaviour {
 	public FlightControlSystem fcs;
     public Engine engine;
     public GearBox gearBox;
-
-    public AudioSource[] rotorSounds;
-    public AudioSource[] engineSounds;
-    public AudioSource startupSound;
-    public AudioSource shutdownSound;
 
 	public SingleMainRotorHelicopter model { get; private set; }
 	private Rigidbody body;
@@ -63,8 +58,6 @@ public class Helicopter : MonoBehaviour {
 	private Transform verticalStabilizerTransform;
 	private Transform fuselageTransform;
 
-    public float upperRotorBlurLimit = 15f;
-    public float lowerRotorBlurLimit = 8f;
     private float mainRotorSpinAngle, tailRotorSpinAngle;
 
 	public Helicopter() {
@@ -94,9 +87,6 @@ public class Helicopter : MonoBehaviour {
         } catch (TrimmerException e) {
             Debug.LogException(e);
 			enabled = false;
-			foreach (var sound in rotorSounds) sound.Stop ();
-			foreach (var sound in engineSounds) sound.Stop ();
-			if (shutdownSound != null) shutdownSound.Play ();
 			if (debugText != null) debugText.text = "TRIM FAIL";
 			return;
         }
@@ -108,10 +98,8 @@ public class Helicopter : MonoBehaviour {
     public void ToggleEngine() {
         if (model.Engine.phase == Engine.Phase.CUTOFF) {
             model.Engine.phase = Engine.Phase.START;
-            if (startupSound != null && !startupSound.isPlaying) startupSound.Play();
         } else if (model.Engine.phase == Engine.Phase.RUN) {
             model.Engine.phase = Engine.Phase.CUTOFF;
-            if (shutdownSound != null && !shutdownSound.isPlaying) shutdownSound.Play();
         }
     }
 
@@ -168,34 +156,18 @@ public class Helicopter : MonoBehaviour {
             while (mainRotorSpinAngle > 360f) mainRotorSpinAngle -= 360f;
             mainRotorTransform.localRotation = Quaternion.Euler(new Vector3((float)mainRotor.beta_cos * 180f / Mathf.PI, 0, (float)mainRotor.beta_sin * 180f / Mathf.PI)) * model.MainRotor.Rotation.ToUnity()
                 * Quaternion.AngleAxis(mainRotorSpinAngle, new Vector3(0, 1, 0));
-            UpdateRotorBlur(mainRotorTransform, mainRotor.RotSpeed);
         }
         if (tailRotorTransform != null) {
 			tailRotorSpinAngle += -tailRotor.rotdir * (float)tailRotor.RotSpeed * 180f / Mathf.PI * Time.deltaTime;
             while (tailRotorSpinAngle > 360f) tailRotorSpinAngle -= 360f;
             tailRotorTransform.localRotation = model.TailRotor.Rotation.ToUnity() * Quaternion.AngleAxis(tailRotorSpinAngle, new Vector3(0, 1, 0));
-            UpdateRotorBlur(tailRotorTransform, tailRotor.RotSpeed);
         }
 
-        // Sound
-        foreach (var rotorSound in rotorSounds) {
-            rotorSound.pitch = (float)(model.MainRotor.RotSpeed / model.MainRotor.designOmega);
-        }
-        foreach (var engineSound in engineSounds) {
-            engineSound.pitch = (float)(model.Engine.rotspeed / model.Engine.Omega0);
-        }
-
-    }
-
-    public void UpdateRotorBlur(Transform transform, double rotspeed) {
-        RotorBlur blur = transform.GetComponent<RotorBlur>();
-        if (blur == null) return;
-        if (rotspeed < lowerRotorBlurLimit) blur.blur = 0;
-        else if (rotspeed > upperRotorBlurLimit) blur.blur = 1;
-        else blur.blur = ((float)rotspeed - lowerRotorBlurLimit) / (upperRotorBlurLimit - lowerRotorBlurLimit);
     }
 
     public void OnDrawGizmosSelected() {
+		if (mainRotor == null || model == null) return;
+
         // Draw debug visualization
         float visualizationScale = (float)(mainRotor.R / model.Mass / 9.81);
         if (mainRotorTransform != null) {
@@ -269,8 +241,9 @@ public class Helicopter : MonoBehaviour {
 	private void FindComponents() {
 		body = GetComponent<Rigidbody>();
 		if (body == null) {
-			Debug.LogError("HeliBehaviour has no Rigidbody");
-			return;
+			body = gameObject.AddComponent<Rigidbody>();
+			body.mass = (float)model.Mass;
+			body.drag = body.angularDrag = 0f;
 		}
         Transform centerOfMassTransform = transform.FindChild("CenterOfMass");
         if (centerOfMassTransform != null) body.centerOfMass = centerOfMassTransform.localPosition;

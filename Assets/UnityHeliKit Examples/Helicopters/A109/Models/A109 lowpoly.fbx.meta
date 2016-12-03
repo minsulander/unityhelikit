@@ -1,0 +1,215 @@
+fileFormatVersion: 2
+guid: df4f4bc88756649abbfcbd251a229ee8
+timeCreated: 1480644928
+licenseType: Free
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: //RootNode
+    100002: Base
+    100004: Camera
+    100006: CenterConsole
+    100008: CenterPedestal
+    100010: collective left
+    100012: collective right
+    100014: Dashboard
+    100016: Fuselage
+    100018: FuselageWings
+    100020: HorizStab
+    100022: Interior
+    100024: Interior walls
+    100026: LandingGear
+    100028: LeftWheel
+    100030: lpedal left
+    100032: lpedal right
+    100034: MainRotor
+    100036: MainRotorBladeRef
+    100038: MainRotorBlades
+    100040: MainRotorHub
+    100042: MainRotorShaft
+    100044: NoseWheel
+    100046: RightWeel
+    100048: rpedal left
+    100050: rpedal right
+    100052: Seats
+    100054: stick left
+    100056: stick right
+    100058: TailRotor
+    100060: TailRotorBlades
+    100062: TailRotorShaft
+    100064: VertStab
+    400000: //RootNode
+    400002: Base
+    400004: Camera
+    400006: CenterConsole
+    400008: CenterPedestal
+    400010: collective left
+    400012: collective right
+    400014: Dashboard
+    400016: Fuselage
+    400018: FuselageWings
+    400020: HorizStab
+    400022: Interior
+    400024: Interior walls
+    400026: LandingGear
+    400028: LeftWheel
+    400030: lpedal left
+    400032: lpedal right
+    400034: MainRotor
+    400036: MainRotorBladeRef
+    400038: MainRotorBlades
+    400040: MainRotorHub
+    400042: MainRotorShaft
+    400044: NoseWheel
+    400046: RightWeel
+    400048: rpedal left
+    400050: rpedal right
+    400052: Seats
+    400054: stick left
+    400056: stick right
+    400058: TailRotor
+    400060: TailRotorBlades
+    400062: TailRotorShaft
+    400064: VertStab
+    2300000: Base
+    2300002: CenterConsole
+    2300004: CenterPedestal
+    2300006: collective left
+    2300008: collective right
+    2300010: Dashboard
+    2300012: Fuselage
+    2300014: FuselageWings
+    2300016: HorizStab
+    2300018: Interior walls
+    2300020: LeftWheel
+    2300022: lpedal left
+    2300024: lpedal right
+    2300026: MainRotorBlades
+    2300028: MainRotorHub
+    2300030: MainRotorShaft
+    2300032: NoseWheel
+    2300034: RightWeel
+    2300036: rpedal left
+    2300038: rpedal right
+    2300040: Seats
+    2300042: stick left
+    2300044: stick right
+    2300046: TailRotorBlades
+    2300048: TailRotorShaft
+    2300050: VertStab
+    3300000: Base
+    3300002: CenterConsole
+    3300004: CenterPedestal
+    3300006: collective left
+    3300008: collective right
+    3300010: Dashboard
+    3300012: Fuselage
+    3300014: FuselageWings
+    3300016: HorizStab
+    3300018: Interior walls
+    3300020: LeftWheel
+    3300022: lpedal left
+    3300024: lpedal right
+    3300026: MainRotorBlades
+    3300028: MainRotorHub
+    3300030: MainRotorShaft
+    3300032: NoseWheel
+    3300034: RightWeel
+    3300036: rpedal left
+    3300038: rpedal right
+    3300040: Seats
+    3300042: stick left
+    3300044: stick right
+    3300046: TailRotorBlades
+    3300048: TailRotorShaft
+    3300050: VertStab
+    4300000: NoseWheel
+    4300002: LeftWheel
+    4300004: RightWeel
+    4300006: MainRotorHub
+    4300008: MainRotorShaft
+    4300010: MainRotorBlades
+    4300012: Base
+    4300014: collective left
+    4300016: Seats
+    4300018: collective right
+    4300020: stick left
+    4300022: stick right
+    4300024: lpedal right
+    4300026: rpedal right
+    4300028: rpedal left
+    4300030: Interior walls
+    4300032: CenterConsole
+    4300034: CenterPedestal
+    4300036: Dashboard
+    4300038: lpedal left
+    4300040: TailRotorBlades
+    4300042: TailRotorShaft
+    4300044: HorizStab
+    4300046: VertStab
+    4300048: Fuselage
+    4300050: FuselageWings
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
