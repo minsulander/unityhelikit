@@ -6,11 +6,11 @@ public class Pedal : MonoBehaviour {
 	public float deflection = 50f;
 	public bool inverted;
 
-    private Helicopter helicopter;
+    private SingleMainRotorHelicopter helicopter;
     private Quaternion originalRotation;
 
     void Start () {
-		helicopter = GetComponentInParent<Helicopter> ();
+		helicopter = GetComponentInParent<SingleMainRotorHelicopter> ();
         originalRotation = transform.localRotation;
     }
 

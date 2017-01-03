@@ -2,12 +2,12 @@
 using System.Collections;
 using UnityEditor;
 
-[CustomEditor(typeof(Helicopter))]
+[CustomEditor(typeof(SingleMainRotorHelicopter))]
 public class HeliEditor : Editor {
 
 	public override void OnInspectorGUI() {
 		DrawDefaultInspector();
-		Helicopter heli = (Helicopter)target;
+		SingleMainRotorHelicopter heli = (SingleMainRotorHelicopter)target;
 		if (GUILayout.Button("Load Default")) {
 			heli.LoadDefault();
 		}

@@ -16,14 +16,14 @@ public class RotorBlur : MonoBehaviour {
     private float blur;
 
 
-	private Helicopter helicopter;
+	private SingleMainRotorHelicopter helicopter;
 
 	void Start () {
-		helicopter = GetComponentInParent<Helicopter>();
+		helicopter = GetComponentInParent<SingleMainRotorHelicopter>();
 	}
 	
 	void Update () {
-		var rotspeed = source == Source.MainRotor ? helicopter.model.MainRotor.RotSpeed : helicopter.model.TailRotor.RotSpeed;
+		var rotspeed = source == Source.MainRotor ? helicopter._model.MainRotor.RotSpeed : helicopter._model.TailRotor.RotSpeed;
 		if (rotspeed < lowerRotorBlurLimit) blur = 0;
 		else if (rotspeed > upperRotorBlurLimit) blur = 1;
 		else blur = ((float)rotspeed - lowerRotorBlurLimit) / (upperRotorBlurLimit - lowerRotorBlurLimit);

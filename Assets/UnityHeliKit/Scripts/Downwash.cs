@@ -3,7 +3,7 @@ using System.Collections;
 
 public class Downwash : MonoBehaviour {
 
-	private Helicopter helicopter;
+	private SingleMainRotorHelicopter helicopter;
 	private WindZone windZone;
 
 	public float minWashVelocity = 5f;
@@ -12,7 +12,7 @@ public class Downwash : MonoBehaviour {
 	private float origMain, origTurbulence, origPulseMagnitude;
 
 	void Start () {
-		helicopter = GetComponentInParent<Helicopter> ();
+		helicopter = GetComponentInParent<SingleMainRotorHelicopter> ();
 		windZone = GetComponent<WindZone> ();
 		origMain = windZone.windMain;
 		origTurbulence = windZone.windTurbulence;

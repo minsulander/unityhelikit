@@ -8,23 +8,25 @@ public class HelicopterSound : MonoBehaviour {
 	public AudioSource startupSound;
 	public AudioSource shutdownSound;
 
-	private Helicopter helicopter;
+    private SingleMainRotorHelicopter helicopter;
+	private HeliSharp.SingleMainRotorHelicopter model;
 	private HeliSharp.Engine.Phase lastEnginePhase;
 
 	void Start () {
-		helicopter = GetComponent<Helicopter>();
+		helicopter = GetComponent<SingleMainRotorHelicopter>();
+	    if (helicopter != null) model = helicopter._model;
 	}
 
 	void Update () {
 		if (helicopter.isActiveAndEnabled) {
 			foreach (var rotorSound in rotorSounds) {
-				rotorSound.pitch = (float)(helicopter.model.MainRotor.RotSpeed / helicopter.model.MainRotor.designOmega);
+				rotorSound.pitch = (float)(model.MainRotor.RotSpeed / model.MainRotor.designOmega);
 			}
 			foreach (var engineSound in engineSounds) {
-				engineSound.pitch = (float)(helicopter.model.Engine.rotspeed / helicopter.model.Engine.Omega0);
+				engineSound.pitch = (float)(model.Engine.rotspeed / model.Engine.Omega0);
 			}
-			if (helicopter.model.Engine.phase != lastEnginePhase) {
-				switch (helicopter.model.Engine.phase) {
+			if (model.Engine.phase != lastEnginePhase) {
+				switch (model.Engine.phase) {
 					case HeliSharp.Engine.Phase.START:
 						if (startupSound != null && !startupSound.isPlaying) startupSound.Play();
 						break;
@@ -33,7 +35,7 @@ public class HelicopterSound : MonoBehaviour {
 						break;
 				}
 			}
-			lastEnginePhase = helicopter.model.Engine.phase;
+			lastEnginePhase = model.Engine.phase;
 		} else {
 			foreach (var sound in rotorSounds) sound.Stop ();
 			foreach (var sound in engineSounds) sound.Stop ();

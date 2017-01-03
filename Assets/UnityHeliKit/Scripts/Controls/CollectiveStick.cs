@@ -5,11 +5,11 @@ public class CollectiveStick : MonoBehaviour {
 
 	public float deflection = 25f;
 
-    private Helicopter helicopter;
+    private SingleMainRotorHelicopter helicopter;
     private Quaternion originalRotation;
 
     void Start () {
-		helicopter = GetComponentInParent<Helicopter> ();
+		helicopter = GetComponentInParent<SingleMainRotorHelicopter> ();
         originalRotation = transform.localRotation;
     }
 

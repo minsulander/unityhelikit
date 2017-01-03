@@ -8,12 +8,12 @@ public class Wheel : MonoBehaviour {
     WheelCollider wheelCollider;
 	public Transform visualWheel;
 	private Quaternion originalRotation;
-    private Helicopter helicopter;
+    private SingleMainRotorHelicopter helicopter;
 
 	void Start () {
 		wheelCollider = GetComponent<WheelCollider>();
 		originalRotation = visualWheel.transform.rotation;
-        helicopter = GetComponentInParent<Helicopter>();
+        helicopter = GetComponentInParent<SingleMainRotorHelicopter>();
 	}
 
 	void Update () {

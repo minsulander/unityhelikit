@@ -6,11 +6,11 @@ public class CyclicStick : MonoBehaviour {
 	public float longitudinalDeflection = 15f;
 	public float lateralDeflection = 15f;
 
-    private Helicopter helicopter;
+    private SingleMainRotorHelicopter helicopter;
     private Quaternion originalRotation;
 
 	void Start () {
-		helicopter = GetComponentInParent<Helicopter> ();
+		helicopter = GetComponentInParent<SingleMainRotorHelicopter> ();
         originalRotation = transform.localRotation;
 	}
 	

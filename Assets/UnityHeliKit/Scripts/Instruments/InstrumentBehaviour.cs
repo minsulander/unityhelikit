@@ -3,10 +3,10 @@ using System.Collections;
 
 public abstract class InstrumentBehaviour : MonoBehaviour {
 
-    public Helicopter aircraft;
+    public SingleMainRotorHelicopter aircraft;
 
     public virtual void Start () {
-        if (aircraft == null) aircraft = GetComponentInParent<Helicopter>();
+        if (aircraft == null) aircraft = GetComponentInParent<SingleMainRotorHelicopter>();
     }
 
     public virtual void Update () {
