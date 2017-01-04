@@ -9,12 +9,12 @@ public class HelicopterInput : MonoBehaviour {
         helicopter = GetComponent<Helicopter>();
     }
 
-    void FixedUpdate () {
-        if (Input.GetKeyDown("1"))
+    void Update () {
+        if (Input.GetButtonDown("ThrottleFull"))
             helicopter.Throttle = 1;
-        else if (Input.GetKeyDown("5"))
+        else if (Input.GetButtonDown("ThrottleHalf"))
             helicopter.Throttle = 0.5f;
-        else if (Input.GetKeyDown("0"))
+        else if (Input.GetButtonDown("ThrottleZero"))
             helicopter.Throttle = 0;
         else if (Input.GetButtonDown("Engine"))
             helicopter.ToggleEngine();
