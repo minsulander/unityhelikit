@@ -49,12 +49,8 @@ public class CameraController : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
-        if (Input.GetButtonDown("Camera Mode")) {
-            mode++;
-            if (mode == CameraMode.LAST) mode = CameraMode.FIRST + 1;
-            Apply();
-        }
+	protected void Update () {
+        if (Input.GetButtonDown("Camera Mode")) NextMode();
 
         if (mode == CameraMode.CHASE) {
             azimuth -= Input.GetAxis("Mouse X") * azimuthSensitivity * Time.deltaTime;
@@ -68,6 +64,12 @@ public class CameraController : MonoBehaviour {
             //exteriorCamera.transform.position = target.transform.position + target.transform.TransformDirection(direction);
         }
         exteriorCamera.transform.LookAt(target);
+    }
+
+    public void NextMode() {
+        mode++;
+        if (mode == CameraMode.LAST) mode = CameraMode.FIRST + 1;
+        Apply();
     }
 
     private void Apply() {
