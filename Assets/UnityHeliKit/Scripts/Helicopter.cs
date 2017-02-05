@@ -8,6 +8,7 @@ using MathNet.Numerics.LinearAlgebra;
 public abstract class Helicopter : MonoBehaviour
 {
 
+    public FlightControlSystem fcs;
     public bool airStart = true;
 
     public Text debugText;
@@ -42,6 +43,8 @@ public abstract class Helicopter : MonoBehaviour
     }
     public float LeftBrake { get; set; }
     public float RightBrake { get; set; }
+
+    private Dictionary<Rotor, float> rotorSpinAngle = new Dictionary<Rotor, float>();
 
     public virtual void FindComponents() {
         body = GetComponent<Rigidbody>();
@@ -134,9 +137,38 @@ public abstract class Helicopter : MonoBehaviour
         return null;
     }
 
-    public abstract void ParametrizeUnityFromModel();
+    public virtual void ParametrizeUnityFromModel() {
+        // Set mass and inertia
+        body.mass = (float)model.Mass;
+        Vector3 inertia = (model.Inertia * Vector<double>.Build.DenseOfArray(new double[] { 1, 1, 1 })).ToUnity();
+        inertia.y *= -1; // all inertia tensor components must be positive
+        body.inertiaTensor = inertia;
+        Debug.Log("Inertia tensor " + body.inertiaTensor);
+        // TODO what about body.inertiaTensorRotation ?
 
-    public abstract void ParametrizeModelsFromUnity();
+        fcs = model.FCS;
+    }
+
+    public virtual void ParametrizeModelsFromUnity() {
+        model.LoadDefault();
+        // Set mass and inertia
+        //model.Mass = body.mass;
+        //model.Inertia = Matrix<double>.Build.DenseOfDiagonalVector(body.inertiaTensor.FromUnity());
+        Debug.Log(name + " mass " + model.Mass.ToStr());
+        Debug.Log(name + " inertia " + model.Inertia.ToStr());
+        // TODO what about body.inertiaTensorRotation ?
+
+        model.FCS = fcs;
+        model.Gravity.Enabled = false;
+    }
+
+    protected void SpinRotor(Transform rotorTransform, Rotor rotor) {
+        if (!rotorSpinAngle.ContainsKey(rotor)) rotorSpinAngle[rotor] = 0f;
+        rotorSpinAngle[rotor] += -rotor.rotdir * (float)rotor.RotSpeed * 180f / Mathf.PI * Time.deltaTime;
+        while (rotorSpinAngle[rotor] > 360f) rotorSpinAngle[rotor] -= 360f;
+        rotorTransform.localRotation = Quaternion.Euler(new Vector3((float)rotor.beta_cos * 180f / Mathf.PI, 0, (float)rotor.beta_sin * 180f / Mathf.PI)) * rotor.Rotation.ToUnity()
+            * Quaternion.AngleAxis(rotorSpinAngle[rotor], new Vector3(0, 1, 0));
+    }
 
     protected void DebugDrawRotor(Transform transform, Rotor rotor, int numSegments) {
         for (int i = 0; i < numSegments; i++) {

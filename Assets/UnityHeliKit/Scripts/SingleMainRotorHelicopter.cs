@@ -12,7 +12,6 @@ public class SingleMainRotorHelicopter : Helicopter {
 	public Stabilizer horizontalStabilizer;
 	public Stabilizer verticalStabilizer;
 	public Fuselage fuselage;
-	public FlightControlSystem fcs;
     public Engine engine;
     public GearBox gearBox;
 
@@ -63,19 +62,8 @@ public class SingleMainRotorHelicopter : Helicopter {
 			debugText.text += text;
 		}
 
-        // Move rotors
-        if (mainRotorTransform != null) {
-			mainRotorSpinAngle += -mainRotor.rotdir * (float)mainRotor.RotSpeed * 180f / Mathf.PI * Time.deltaTime;
-            while (mainRotorSpinAngle > 360f) mainRotorSpinAngle -= 360f;
-            mainRotorTransform.localRotation = Quaternion.Euler(new Vector3((float)mainRotor.beta_cos * 180f / Mathf.PI, 0, (float)mainRotor.beta_sin * 180f / Mathf.PI)) * _model.MainRotor.Rotation.ToUnity()
-                * Quaternion.AngleAxis(mainRotorSpinAngle, new Vector3(0, 1, 0));
-        }
-        if (tailRotorTransform != null) {
-			tailRotorSpinAngle += -tailRotor.rotdir * (float)tailRotor.RotSpeed * 180f / Mathf.PI * Time.deltaTime;
-            while (tailRotorSpinAngle > 360f) tailRotorSpinAngle -= 360f;
-            tailRotorTransform.localRotation = _model.TailRotor.Rotation.ToUnity() * Quaternion.AngleAxis(tailRotorSpinAngle, new Vector3(0, 1, 0));
-        }
-
+        if (mainRotorTransform != null) SpinRotor(mainRotorTransform, mainRotor);
+        if (tailRotorTransform != null) SpinRotor(tailRotorTransform, tailRotor);
     }
 
     public void OnDrawGizmosSelected() {
@@ -113,13 +101,7 @@ public class SingleMainRotorHelicopter : Helicopter {
     }
 
 	public override void ParametrizeUnityFromModel() {
-		// Set mass and inertia
-		body.mass = (float)model.Mass;
-		Vector3 inertia = (model.Inertia * Vector<double>.Build.DenseOfArray(new double[] { 1, 1, 1 })).ToUnity();
-		inertia.y *= -1; // all inertia tensor components must be positive
-		body.inertiaTensor = inertia;
-		Debug.Log("Inertia tensor " + body.inertiaTensor);
-		// TODO what about body.inertiaTensorRotation ?
+        base.ParametrizeUnityFromModel();
 
 		// Sub models
 		mainRotor = _model.MainRotor;
@@ -172,20 +154,12 @@ public class SingleMainRotorHelicopter : Helicopter {
 		fuselageTransform.localPosition = _model.Fuselage.Translation.ToUnity();
 		fuselageTransform.localRotation = _model.Fuselage.Rotation.ToUnity();
 
-		fcs = model.FCS;
         engine = _model.Engine;
         gearBox = _model.GearBox;
 	}
 
 	public override void ParametrizeModelsFromUnity() {
-		_model.LoadDefault ();
-		// Set mass and inertia
-		//model.Mass = body.mass;
-		//model.Inertia = Matrix<double>.Build.DenseOfDiagonalVector(body.inertiaTensor.FromUnity());
-		Debug.Log ("Mass " + model.Mass.ToStr ());
-		Debug.Log ("Inertia " + model.Inertia.ToStr ());
-		// TODO what about body.inertiaTensorRotation ?
-
+        base.ParametrizeModelsFromUnity();
 		// Add sub models
 		mainRotorTransform = transform.FindChild("MainRotor");
 		if (mainRotorTransform == null) {
@@ -222,9 +196,7 @@ public class SingleMainRotorHelicopter : Helicopter {
 			_model.Fuselage.Rotation = fuselageTransform.localRotation.FromUnity();
 		}
 
-		model.FCS = fcs;
         _model.Engine = engine;
         _model.GearBox = gearBox;
-		model.Gravity.Enabled = false;
 	}
 }
