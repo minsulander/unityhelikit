@@ -23,7 +23,7 @@
     "friction": 0.1,
     "Omega0": 628.32,
     "load": 0.0,
-    "inertia": 0.0,
+    "inertia": 10.0,
     "Solver": null
   },
   "MainRotor": {
@@ -52,10 +52,10 @@
     "cyclicflap": true,
     "useDynamicInflow": true,
     "applyTorque": true,
-    "Collective": 0.0,
-    "LongCyclic": 0.0,
-    "LatCyclic": 0.0,
-    "RotSpeed": 0.0,
+    "Collective": 6.722011607749244,
+    "LongCyclic": 0.16666666666666674,
+    "LatCyclic": 0.086956521739130377,
+    "RotSpeed": 40.317106,
     "HeightAboveGround": 1000.0,
     "translation": [
       0.0071000000461936,
@@ -63,15 +63,15 @@
       -1.5163999795913696
     ],
     "rotation": [
-      0.99396095402843754,
+      0.99396095484478675,
       0.0,
-      0.1097343240143123,
+      0.10973431661991555,
       0.0,
       1.0,
       0.0,
-      -0.1097343240143123,
+      -0.10973431661991555,
       0.0,
-      0.99396095402843754
+      0.99396095484478675
     ]
   },
   "TailRotor": {
@@ -100,10 +100,10 @@
     "cyclicflap": false,
     "useDynamicInflow": true,
     "applyTorque": true,
-    "Collective": 0.0,
-    "LongCyclic": 0.0,
-    "LatCyclic": 0.0,
-    "RotSpeed": 0.0,
+    "Collective": 3.2863853008721549,
+    "LongCyclic": "NaN",
+    "LatCyclic": "NaN",
+    "RotSpeed": 217.8171,
     "HeightAboveGround": 1000.0,
     "translation": [
       -7.5,
@@ -238,8 +238,8 @@
       "desiredScale": 1.0
     },
     "pitchPID": {
-      "kp": 2.0,
-      "ki": 0.5,
+      "kp": 1.0,
+      "ki": 0.3,
       "kd": 0.01,
       "outputLimit": 0.25,
       "integratorLimit": 0.5,
@@ -247,8 +247,8 @@
       "desiredScale": 0.5236
     },
     "rollPID": {
-      "kp": 2.0,
-      "ki": 0.5,
+      "kp": 1.0,
+      "ki": 0.3,
       "kd": 0.01,
       "outputLimit": 0.25,
       "integratorLimit": 1.0,

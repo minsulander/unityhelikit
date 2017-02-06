@@ -15,6 +15,7 @@ public abstract class Helicopter : MonoBehaviour
 
     public abstract HeliSharp.Helicopter model { get; }
     protected Rigidbody body;
+    protected Dictionary<string, Transform> submodelTransforms = new Dictionary<string, Transform>();
 
     // "Relay" controls to dynamics model
     public float Throttle {
@@ -46,6 +47,12 @@ public abstract class Helicopter : MonoBehaviour
 
     private Dictionary<Rotor, float> rotorSpinAngle = new Dictionary<Rotor, float>();
 
+    public virtual void Start () {
+        FindComponents();
+        ParametrizeModelsFromUnity();
+        Trim(true);
+    }
+
     public virtual void FindComponents() {
         body = GetComponent<Rigidbody>();
         if (body == null) {
@@ -55,6 +62,17 @@ public abstract class Helicopter : MonoBehaviour
         }
         Transform centerOfMassTransform = transform.FindChild("CenterOfMass");
         if (centerOfMassTransform != null) body.centerOfMass = centerOfMassTransform.localPosition;
+        foreach (var submodelName in model.SubModels.Keys) {
+            if (submodelName == "Gravity") continue;
+            var submodel = model.SubModels[submodelName];
+            var childTransform = transform.FindChild(submodelName);
+            if (childTransform == null) {
+                var childObject = new GameObject(submodelName);
+                childTransform = childObject.transform;
+                childTransform.parent = transform;
+            }
+            submodelTransforms[submodelName] = childTransform;
+        }
     }
 
     public virtual void Trim(bool initial)
@@ -127,6 +145,14 @@ public abstract class Helicopter : MonoBehaviour
         body.AddRelativeForce(force);
         body.AddRelativeTorque(torque);
 
+        // Spin rotors
+        foreach (var submodelName in submodelTransforms.Keys) {
+            var submodel = model.SubModels[submodelName];
+            var childTransform = submodelTransforms[submodelName];
+            if (submodel is Rotor) {
+                SpinRotor(childTransform, (Rotor)submodel);
+            }
+        }
     }
 
     public float? GetHeight() {
@@ -147,19 +173,35 @@ public abstract class Helicopter : MonoBehaviour
         // TODO what about body.inertiaTensorRotation ?
 
         fcs = model.FCS;
+
+        foreach (var submodelName in submodelTransforms.Keys) {
+            var submodel = model.SubModels[submodelName];
+            var childTransform = submodelTransforms[submodelName];
+            Debug.Log("Transform from submodel: " + childTransform.name);
+            childTransform.localPosition = submodel.Translation.ToUnity();
+            childTransform.localRotation = submodel.Rotation.ToUnity();
+        }
     }
 
     public virtual void ParametrizeModelsFromUnity() {
-        model.LoadDefault();
+        //model.LoadDefault();
         // Set mass and inertia
         //model.Mass = body.mass;
         //model.Inertia = Matrix<double>.Build.DenseOfDiagonalVector(body.inertiaTensor.FromUnity());
-        Debug.Log(name + " mass " + model.Mass.ToStr());
-        Debug.Log(name + " inertia " + model.Inertia.ToStr());
+        //Debug.Log(name + " mass " + model.Mass.ToStr());
+        //Debug.Log(name + " inertia " + model.Inertia.ToStr());
         // TODO what about body.inertiaTensorRotation ?
 
         model.FCS = fcs;
         model.Gravity.Enabled = false;
+
+        foreach (var submodelName in submodelTransforms.Keys) {
+            var submodel = model.SubModels[submodelName];
+            var childTransform = submodelTransforms[submodelName];
+            Debug.Log("Submodel from transform: " + childTransform.name);
+            submodel.Translation = childTransform.localPosition.FromUnity();
+            submodel.Rotation = childTransform.localRotation.FromUnity();
+        }
     }
 
     protected void SpinRotor(Transform rotorTransform, Rotor rotor) {
@@ -170,15 +212,30 @@ public abstract class Helicopter : MonoBehaviour
             * Quaternion.AngleAxis(rotorSpinAngle[rotor], new Vector3(0, 1, 0));
     }
 
-    protected void DebugDrawRotor(Transform transform, Rotor rotor, int numSegments) {
+    public virtual void OnDrawGizmosSelected() {
+        if (model == null) return;
+        float visualizationScale = (float)(model.Rotors[0].R / model.Mass / 9.81);
+        foreach (var submodelName in submodelTransforms.Keys) {
+            var submodel = model.SubModels[submodelName];
+            var childTransform = submodelTransforms[submodelName];
+            Debug.DrawLine(transform.TransformPoint(submodel.Translation.ToUnity()), transform.TransformPoint(submodel.Translation.ToUnity() + (submodel.Rotation * submodel.Force).ToUnity() * visualizationScale), Color.yellow);
+            if (submodel is Rotor) {
+                Rotor rotor = (Rotor) submodel;
+                DebugDrawRotor(childTransform, rotor, 32);
+                Debug.DrawLine(transform.position, transform.TransformPoint(-rotor.WashVelocity.ToUnity() / 3), Color.blue);
+            }
+        }
+    }
+
+    protected void DebugDrawRotor(Transform rotorTransform, Rotor rotor, int numSegments) {
         for (int i = 0; i < numSegments; i++) {
             float step = 360f / numSegments;
             float a = i * step;
             Vector3 p1 = new Vector3((float)rotor.R * Mathf.Cos(a * Mathf.PI / 180f), (float)rotor.R * Mathf.Sin((float)rotor.beta_0), (float)rotor.R * Mathf.Sin(a * Mathf.PI / 180f));
             Vector3 p2 = new Vector3((float)rotor.R * Mathf.Cos((a + step) * Mathf.PI / 180f), (float)rotor.R * Mathf.Sin((float)rotor.beta_0), (float)rotor.R * Mathf.Sin((a + step) * Mathf.PI / 180f));
-            Debug.DrawLine(transform.TransformPoint(p1), transform.TransformPoint(p2), Color.gray);
+            Debug.DrawLine(rotorTransform.TransformPoint(p1), rotorTransform.TransformPoint(p2), Color.gray);
             if (i % (numSegments / rotor.Nb) == 0)
-                Debug.DrawLine(transform.position, transform.TransformPoint(p1), Color.gray);
+                Debug.DrawLine(rotorTransform.position, rotorTransform.TransformPoint(p1), Color.gray);
 
         }
     }
