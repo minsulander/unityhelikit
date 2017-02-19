@@ -8,19 +8,19 @@ public class HelicopterSound : MonoBehaviour {
 	public AudioSource startupSound;
 	public AudioSource shutdownSound;
 
-    private SingleMainRotorHelicopter helicopter;
-	private HeliSharp.SingleMainRotorHelicopter model;
+    private Helicopter helicopter;
+	private HeliSharp.Helicopter model;
 	private HeliSharp.Engine.Phase lastEnginePhase;
 
 	void Start () {
-		helicopter = GetComponent<SingleMainRotorHelicopter>();
-	    if (helicopter != null) model = helicopter._model;
+		helicopter = GetComponent<Helicopter>();
+	    if (helicopter != null) model = helicopter.model;
 	}
 
 	void Update () {
 		if (helicopter.isActiveAndEnabled) {
 			foreach (var rotorSound in rotorSounds) {
-				rotorSound.pitch = (float)(model.MainRotor.RotSpeed / model.MainRotor.designOmega);
+				rotorSound.pitch = (float)(model.Rotors[0].RotSpeed / model.Rotors[0].designOmega);
 			}
 			foreach (var engineSound in engineSounds) {
 				engineSound.pitch = (float)(model.Engine.rotspeed / model.Engine.Omega0);

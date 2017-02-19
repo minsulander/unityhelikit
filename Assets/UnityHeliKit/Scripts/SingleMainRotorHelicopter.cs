@@ -3,16 +3,16 @@ using HeliSharp;
 
 public class SingleMainRotorHelicopter : Helicopter {
 
-	public Rotor mainRotor;
+    public override HeliSharp.Helicopter model { get { return _model; } }
+    public HeliSharp.SingleMainRotorHelicopter _model { get; set; }
+
+    public Rotor mainRotor;
 	public Rotor tailRotor;
 	public Stabilizer horizontalStabilizer;
 	public Stabilizer verticalStabilizer;
 	public Fuselage fuselage;
     public Engine engine;
     public GearBox gearBox;
-
-	public override HeliSharp.Helicopter model { get { return _model; } }
-    public HeliSharp.SingleMainRotorHelicopter _model { get; set; }
 
     public SingleMainRotorHelicopter() {
 		_model = new HeliSharp.SingleMainRotorHelicopter ();
