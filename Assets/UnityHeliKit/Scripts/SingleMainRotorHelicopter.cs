@@ -18,31 +18,17 @@ public class SingleMainRotorHelicopter : Helicopter {
 		_model = new HeliSharp.SingleMainRotorHelicopter ();
 	}
 
-    public override void Trim(bool initial)
-	{
-	    base.Trim(initial);
-		if (initial) _model.InitEngine(airStart);
-	}
-
-    public override void ToggleEngine() {
-        if (_model.Engine.phase == Engine.Phase.CUTOFF) {
-            _model.Engine.phase = Engine.Phase.START;
-        } else if (_model.Engine.phase == Engine.Phase.RUN) {
-            _model.Engine.phase = Engine.Phase.CUTOFF;
-        }
-    }
-
     public override void FixedUpdate () {
 		if (body == null) return;
 
         base.FixedUpdate();
-
+        /*
         if (debugText != null) {
 			string text = "";
-            text += _model.Engine.phase + " THR " + _model.Engine.throttle + " RPM E " + (_model.Engine.rotspeed * 9.5493).ToStr() + " M/R " + (_model.MainRotor.RotSpeed * 9.5493).ToStr() + "\n";
 			text += "WASH " + Mathf.Round((float)_model.MainRotor.WashVelocity.Norm(2)) + "\n";
 			debugText.text += text;
 		}
+        */
     }
 
 	public override void ParametrizeUnityFromModel() {

@@ -15,37 +15,17 @@ public class QuadCopter : Helicopter {
         _model = new HeliSharp.QuadCopter();
     }
 
-    public override void Trim(bool initial) {
-        /*
-        {
-            HeliSharp.QuadCopter model = (HeliSharp.QuadCopter)new HeliSharp.QuadCopter().LoadDefault();
-            model.FCS.trimControl = false;
-            model.TrimInit();
-            model.Trim();
-        }
-        {
-            model.FCS.trimControl = false;
-            model.TrimInit();
-            model.Trim();
-        }
-        */
-        base.Trim(initial);
-        //if (initial) _model.InitEngine(airStart);
-    }
-
-    public override void ToggleEngine() {
-    }
-
     public override void FixedUpdate() {
         if (body == null) return;
 
         base.FixedUpdate();
-
+        /*
         if (debugText != null) {
             string text = "";
             text += "CONE " + _model.Rotors[0].beta_0;
             debugText.text += text;
         }
+        */
     }
 
     public override void ParametrizeUnityFromModel() {

@@ -97,9 +97,16 @@ public abstract class Helicopter : MonoBehaviour
         }
 
         if (!initial || airStart) body.rotation = model.Rotation.ToUnity ();
+        if (initial) model.InitEngine(airStart);
     }
 
-    public abstract void ToggleEngine();
+    public void ToggleEngine() {
+        if (model.Engine.phase == Engine.Phase.CUTOFF) {
+           model.Engine.phase = Engine.Phase.START;
+        } else if (model.Engine.phase == Engine.Phase.RUN) {
+            model.Engine.phase = Engine.Phase.CUTOFF;
+        }
+    }
 
     public virtual void FixedUpdate() {
         if (body == null) return;
@@ -132,6 +139,7 @@ public abstract class Helicopter : MonoBehaviour
             //text += "FUSE Mz " + (int)fuselage.Torque.z () + "\n";
             //text += "uF " + (int)force.x + " " + (int)force.y + " " + (int)force.z + "\n";
             //text += "uM " + (int)torque.x + " " + (int)torque.y + " " + (int)torque.z + "\n";
+            text += model.Engine.phase + " THR " + model.Engine.throttle + " RPM E " + (model.Engine.rotspeed * 9.5493).ToStr() + " RPM R " + (model.Rotors[0].RotSpeed * 9.5493).ToStr() + "\n";
             if (LeftBrake > 0.01f || RightBrake > 0.01f) text += "BRAKE\n";
             debugText.text = text;
         }
