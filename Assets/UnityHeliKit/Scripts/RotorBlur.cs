@@ -3,12 +3,6 @@ using System.Collections;
 
 public class RotorBlur : MonoBehaviour {
 
-	public enum Source {
-		MainRotor,
-		TailRotor
-	}
-	Source source = Source.MainRotor;
-
     public MeshRenderer[] blades;
     public MeshRenderer[] blurs;
 	public float upperRotorBlurLimit = 15f;
@@ -16,14 +10,14 @@ public class RotorBlur : MonoBehaviour {
     private float blur;
 
 
-	private SingleMainRotorHelicopter helicopter;
+	private Helicopter helicopter;
 
 	void Start () {
-		helicopter = GetComponentInParent<SingleMainRotorHelicopter>();
+		helicopter = GetComponentInParent<Helicopter>();
 	}
 	
 	void Update () {
-		var rotspeed = source == Source.MainRotor ? helicopter._model.MainRotor.RotSpeed : helicopter._model.TailRotor.RotSpeed;
+		var rotspeed = helicopter.model.Rotors[0].RotSpeed;
 		if (rotspeed < lowerRotorBlurLimit) blur = 0;
 		else if (rotspeed > upperRotorBlurLimit) blur = 1;
 		else blur = ((float)rotspeed - lowerRotorBlurLimit) / (upperRotorBlurLimit - lowerRotorBlurLimit);

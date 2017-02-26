@@ -1,0 +1,196 @@
+fileFormatVersion: 2
+guid: 3a390c552aac2494fb88ee0a675f1069
+timeCreated: 1488056624
+licenseType: Free
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: blade1.000
+    100002: blade1.001
+    100004: blade1.002
+    100006: blade1.003
+    100008: blade2.000
+    100010: blade2.001
+    100012: blade2.002
+    100014: blade2.003
+    100016: blade3.000
+    100018: blade3.001
+    100020: blade3.002
+    100022: blade3.003
+    100024: Camera
+    100026: Fuselage
+    100028: Gear
+    100030: Lamp
+    100032: //RootNode
+    100034: Ring
+    100036: Rotor support
+    100038: Rotor0
+    100040: Rotor1
+    100042: Rotor2
+    100044: Rotor3
+    100046: Support1
+    100048: Support2
+    100050: Top
+    400000: blade1.000
+    400002: blade1.001
+    400004: blade1.002
+    400006: blade1.003
+    400008: blade2.000
+    400010: blade2.001
+    400012: blade2.002
+    400014: blade2.003
+    400016: blade3.000
+    400018: blade3.001
+    400020: blade3.002
+    400022: blade3.003
+    400024: Camera
+    400026: Fuselage
+    400028: Gear
+    400030: Lamp
+    400032: //RootNode
+    400034: Ring
+    400036: Rotor support
+    400038: Rotor0
+    400040: Rotor1
+    400042: Rotor2
+    400044: Rotor3
+    400046: Support1
+    400048: Support2
+    400050: Top
+    2300000: blade1.000
+    2300002: blade1.001
+    2300004: blade1.002
+    2300006: blade1.003
+    2300008: blade2.000
+    2300010: blade2.001
+    2300012: blade2.002
+    2300014: blade2.003
+    2300016: blade3.000
+    2300018: blade3.001
+    2300020: blade3.002
+    2300022: blade3.003
+    2300024: Fuselage
+    2300026: Gear
+    2300028: Ring
+    2300030: Rotor support
+    2300032: Rotor0
+    2300034: Rotor1
+    2300036: Rotor2
+    2300038: Rotor3
+    2300040: Support1
+    2300042: Support2
+    2300044: Top
+    3300000: blade1.000
+    3300002: blade1.001
+    3300004: blade1.002
+    3300006: blade1.003
+    3300008: blade2.000
+    3300010: blade2.001
+    3300012: blade2.002
+    3300014: blade2.003
+    3300016: blade3.000
+    3300018: blade3.001
+    3300020: blade3.002
+    3300022: blade3.003
+    3300024: Fuselage
+    3300026: Gear
+    3300028: Ring
+    3300030: Rotor support
+    3300032: Rotor0
+    3300034: Rotor1
+    3300036: Rotor2
+    3300038: Rotor3
+    3300040: Support1
+    3300042: Support2
+    3300044: Top
+    4300000: Rotor support
+    4300002: Rotor3
+    4300004: blade3.003
+    4300006: blade2.003
+    4300008: blade1.003
+    4300010: Rotor2
+    4300012: blade1.002
+    4300014: blade2.002
+    4300016: blade3.002
+    4300018: Rotor1
+    4300020: blade3.000
+    4300022: blade2.000
+    4300024: blade1.000
+    4300026: Support2
+    4300028: Support1
+    4300030: Ring
+    4300032: Top
+    4300034: Fuselage
+    4300036: Gear
+    4300038: Rotor0
+    4300040: blade1.001
+    4300042: blade2.001
+    4300044: blade3.001
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

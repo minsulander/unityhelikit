@@ -9,6 +9,9 @@ public abstract class Helicopter : MonoBehaviour
 {
 
     public FlightControlSystem fcs;
+    public Engine engine;
+    public GearBox gearBox;
+    public Fuselage fuselage;
     public bool airStart = true;
 
     public Text debugText;
@@ -19,8 +22,8 @@ public abstract class Helicopter : MonoBehaviour
 
     // "Relay" controls to dynamics model
     public float Throttle {
-        get { return model is HeliSharp.SingleMainRotorHelicopter ? (float)((HeliSharp.SingleMainRotorHelicopter)model).Engine.throttle : 0; }
-        set { if (model is HeliSharp.SingleMainRotorHelicopter) ((HeliSharp.SingleMainRotorHelicopter)model).Engine.throttle = value; }
+        get { return (float)model.Engine.throttle; }
+        set { model.Engine.throttle = value; }
     }
     public bool TrimControl {
         get { return model.FCS.trimControl; }
@@ -139,6 +142,7 @@ public abstract class Helicopter : MonoBehaviour
             //text += "FUSE Mz " + (int)fuselage.Torque.z () + "\n";
             //text += "uF " + (int)force.x + " " + (int)force.y + " " + (int)force.z + "\n";
             //text += "uM " + (int)torque.x + " " + (int)torque.y + " " + (int)torque.z + "\n";
+            text += "WASH " + (int)model.Rotors[0].WashVelocity.Norm(1) + " CONE " + (int)(model.Rotors[0].beta_0 * 180 / Mathf.PI) + "\n";
             text += model.Engine.phase + " THR " + model.Engine.throttle + " RPM E " + (model.Engine.rotspeed * 9.5493).ToStr() + " RPM R " + (model.Rotors[0].RotSpeed * 9.5493).ToStr() + "\n";
             if (LeftBrake > 0.01f || RightBrake > 0.01f) text += "BRAKE\n";
             debugText.text = text;
@@ -181,6 +185,9 @@ public abstract class Helicopter : MonoBehaviour
         // TODO what about body.inertiaTensorRotation ?
 
         fcs = model.FCS;
+        engine = model.Engine;
+        gearBox = model.GearBox;
+        fuselage = model.Fuselage;
 
         foreach (var submodelName in submodelTransforms.Keys) {
             var submodel = model.SubModels[submodelName];
@@ -201,6 +208,9 @@ public abstract class Helicopter : MonoBehaviour
         // TODO what about body.inertiaTensorRotation ?
 
         model.FCS = fcs;
+        model.Engine = engine;
+        model.GearBox = gearBox;
+        model.Fuselage = fuselage;
         model.Gravity.Enabled = false;
 
         foreach (var submodelName in submodelTransforms.Keys) {
@@ -230,7 +240,7 @@ public abstract class Helicopter : MonoBehaviour
             if (submodel is Rotor) {
                 Rotor rotor = (Rotor) submodel;
                 DebugDrawRotor(childTransform, rotor, 32);
-                Debug.DrawLine(transform.position, transform.TransformPoint(-rotor.WashVelocity.ToUnity() / 3), Color.blue);
+                Debug.DrawLine(childTransform.position, childTransform.TransformPoint(-rotor.WashVelocity.ToUnity() / 3), Color.blue);
             }
         }
     }

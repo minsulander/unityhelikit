@@ -10,9 +10,6 @@ public class SingleMainRotorHelicopter : Helicopter {
 	public Rotor tailRotor;
 	public Stabilizer horizontalStabilizer;
 	public Stabilizer verticalStabilizer;
-	public Fuselage fuselage;
-    public Engine engine;
-    public GearBox gearBox;
 
     public SingleMainRotorHelicopter() {
 		_model = new HeliSharp.SingleMainRotorHelicopter ();
@@ -37,9 +34,6 @@ public class SingleMainRotorHelicopter : Helicopter {
 		tailRotor = _model.TailRotor;
 		horizontalStabilizer = _model.HorizontalStabilizer;
 		verticalStabilizer = _model.VerticalStabilizer;
-		fuselage = _model.Fuselage;
-        engine = _model.Engine;
-        gearBox = _model.GearBox;
 	}
 
 	public override void ParametrizeModelsFromUnity() {
@@ -48,9 +42,6 @@ public class SingleMainRotorHelicopter : Helicopter {
 	    _model.TailRotor = tailRotor;
 	    _model.HorizontalStabilizer = horizontalStabilizer;
 	    _model.VerticalStabilizer = verticalStabilizer;
-	    _model.Fuselage = fuselage;
-	    _model.Engine = engine;
-	    _model.GearBox = gearBox;
 	    base.ParametrizeModelsFromUnity();
 	}
 }

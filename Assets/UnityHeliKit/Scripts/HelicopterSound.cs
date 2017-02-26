@@ -4,13 +4,22 @@ using System.Collections;
 public class HelicopterSound : MonoBehaviour {
 
 	public AudioSource[] rotorSounds;
+    public AudioSource[] rotorSlapSounds;
+    public AudioSource[] rotorDownwashSounds;
 	public AudioSource[] engineSounds;
 	public AudioSource startupSound;
 	public AudioSource shutdownSound;
+    public AudioSource windSound;
+
+    public float maxWindSpeed = 50f;
+    public float rotorSlapMinAngle = 0;
+    public float rotorSlapMaxAngle = 10f;
+    public float rotorDownwashMinVelocity = 0;
+    public float rotorDownwashMaxVelocity = 10f;
 
     private Helicopter helicopter;
 	private HeliSharp.Helicopter model;
-	private HeliSharp.Engine.Phase lastEnginePhase;
+	private HeliSharp.Engine.Phase? lastEnginePhase;
 
 	void Start () {
 		helicopter = GetComponent<Helicopter>();
@@ -22,10 +31,19 @@ public class HelicopterSound : MonoBehaviour {
 			foreach (var rotorSound in rotorSounds) {
 				rotorSound.pitch = (float)(model.Rotors[0].RotSpeed / model.Rotors[0].designOmega);
 			}
+            for (var i = 0; i < model.Rotors.Length; i++) {
+                if (rotorSlapSounds.Length > i) {
+                    rotorSlapSounds[i].pitch = (float)(model.Rotors[i].RotSpeed / model.Rotors[i].designOmega);
+                    rotorSlapSounds[i].volume = Mathf.Clamp01(((float)model.Rotors[0].beta_0 * 180f / Mathf.PI - rotorSlapMinAngle) / (rotorSlapMaxAngle - rotorSlapMinAngle));
+                }
+                if (rotorDownwashSounds.Length > i) {
+                    rotorDownwashSounds[i].volume = Mathf.Clamp01(((float)model.Rotors[0].WashVelocity.Norm(1) - rotorDownwashMinVelocity) / (rotorDownwashMaxVelocity - rotorDownwashMinVelocity));
+                }
+            }
 			foreach (var engineSound in engineSounds) {
 				engineSound.pitch = (float)(model.Engine.rotspeed / model.Engine.Omega0);
 			}
-			if (model.Engine.phase != lastEnginePhase) {
+			if (lastEnginePhase.HasValue && model.Engine.phase != lastEnginePhase.Value) {
 				switch (model.Engine.phase) {
 					case HeliSharp.Engine.Phase.START:
 						if (startupSound != null && !startupSound.isPlaying) startupSound.Play();
@@ -35,6 +53,9 @@ public class HelicopterSound : MonoBehaviour {
 						break;
 				}
 			}
+            if (windSound != null) {
+                windSound.volume = Mathf.Clamp01((float)model.Fuselage.Velocity.Norm(1) / maxWindSpeed);
+            }
 			lastEnginePhase = model.Engine.phase;
 		} else {
 			foreach (var sound in rotorSounds) sound.Stop ();
