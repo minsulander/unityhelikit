@@ -17,8 +17,19 @@ public abstract class Helicopter : MonoBehaviour
     public Text debugText;
 
     public abstract HeliSharp.Helicopter model { get; }
+
     protected Rigidbody body;
     protected Dictionary<string, Transform> submodelTransforms = new Dictionary<string, Transform>();
+
+    private object trimThreadLock = new object();
+    private System.Threading.Thread trimThread = null;
+    private bool trimDone = false;
+    public bool IsTrimming { get {
+            lock (trimThreadLock) {
+                return trimThread != null && !trimDone;
+            }
+        }
+    }
 
     // "Relay" controls to dynamics model
     public float Throttle {
@@ -81,26 +92,35 @@ public abstract class Helicopter : MonoBehaviour
     public virtual void Trim(bool initial)
     {
         Debug.Log("Trim" + (initial ? " initial" : ""));
-        model.Rotation = body.rotation.FromUnity();
-        if (initial) {
-            model.RollAngle = 0;
-            model.PitchAngle = 0;
-            model.AngularVelocity = Vector<double>.Build.Dense(3);
-            model.TrimInit();
+
+        Quaternion rotation = body.rotation;
+        body.useGravity = false;
+
+        lock (trimThreadLock) {
+            trimDone = false;
+            trimThread = new System.Threading.Thread(delegate () {
+                model.Rotation = rotation.FromUnity();
+                if (initial) {
+                    model.RollAngle = 0;
+                    model.PitchAngle = 0;
+                    model.AngularVelocity = Vector<double>.Build.Dense(3);
+                    model.TrimInit();
+                }
+
+                // Trim for equilibrium
+                try {
+                    model.Trim();
+                } catch (HeliSharp.TrimmerException e) {
+                    Debug.LogException(e);
+                }
+                lock (trimThreadLock) {
+                    trimDone = true;
+                }
+                if (initial) model.InitEngine(airStart);
+            });
+            trimThread.Start();
         }
 
-        // Trim for equilibrium
-        try {
-            model.Trim();
-        } catch (HeliSharp.TrimmerException e) {
-            Debug.LogException(e);
-            enabled = false;
-            if (debugText != null) debugText.text = "TRIM FAIL";
-            return;
-        }
-
-        if (!initial || airStart) body.rotation = model.Rotation.ToUnity ();
-        if (initial) model.InitEngine(airStart);
     }
 
     public void ToggleEngine() {
@@ -113,6 +133,18 @@ public abstract class Helicopter : MonoBehaviour
 
     public virtual void FixedUpdate() {
         if (body == null) return;
+        lock (trimThreadLock) {
+            if (trimThread != null) {
+                if (trimDone) {
+                    Debug.Log("Trim done");
+                    body.useGravity = true;
+                    body.rotation = model.Rotation.ToUnity();
+                    trimThread = null;
+                } else {
+                    return;
+                }
+            }
+        }
 
         // Set velocities and attitues from rigid body simulation
         model.Velocity = transform.InverseTransformDirection(body.velocity).FromUnity();
@@ -154,6 +186,17 @@ public abstract class Helicopter : MonoBehaviour
         // Set force and torque/moment in rigid body simulation
         Vector3 force = model.Force.ToUnity();
         Vector3 torque = -model.Torque.ToUnity(); // minus because Unity uses a left-hand coordinate system
+        // First sanity check
+        if (float.IsNaN(force.x) || float.IsNaN(force.y) || float.IsNaN(force.z)) {
+            Debug.LogError(name + ": force is NaN");
+            enabled = false;
+            return;
+        }
+        if (float.IsNaN(torque.x) || float.IsNaN(torque.y) || float.IsNaN(torque.z)) {
+            Debug.LogError(name + ": torque is NaN");
+            enabled = false;
+            return;
+        }
         body.AddRelativeForce(force);
         body.AddRelativeTorque(torque);
 
@@ -162,6 +205,11 @@ public abstract class Helicopter : MonoBehaviour
             var submodel = model.SubModels[submodelName];
             var childTransform = submodelTransforms[submodelName];
             if (submodel is Rotor) {
+                if (double.IsNaN(((Rotor)submodel).RotSpeed)) {
+                    Debug.LogError(name + ": rotor speed is NaN");
+                    enabled = false;
+                    return;
+                }
                 SpinRotor(childTransform, (Rotor)submodel);
             }
         }

@@ -10,6 +10,8 @@ public class HelicopterInput : MonoBehaviour {
     }
 
     void Update () {
+        if (helicopter.IsTrimming) return;
+
         if (Input.GetButtonDown("ThrottleFull"))
             helicopter.Throttle = 1;
         else if (Input.GetButtonDown("ThrottleHalf"))
