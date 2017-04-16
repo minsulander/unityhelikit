@@ -41,7 +41,7 @@ public class HelicopterSound : MonoBehaviour {
                 }
             }
 			foreach (var engineSound in engineSounds) {
-				engineSound.pitch = (float)(model.Engine.rotspeed / model.Engine.Omega0);
+				engineSound.pitch = (float)(model.Engine.RotSpeed / model.Engine.Omega0);
 			}
 			if (lastEnginePhase.HasValue && model.Engine.phase != lastEnginePhase.Value) {
 				switch (model.Engine.phase) {

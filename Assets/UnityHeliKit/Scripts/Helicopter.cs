@@ -175,7 +175,7 @@ public abstract class Helicopter : MonoBehaviour
             //text += "uF " + (int)force.x + " " + (int)force.y + " " + (int)force.z + "\n";
             //text += "uM " + (int)torque.x + " " + (int)torque.y + " " + (int)torque.z + "\n";
             text += "WASH " + (int)model.Rotors[0].WashVelocity.Norm(1) + " CONE " + (int)(model.Rotors[0].beta_0 * 180 / Mathf.PI) + "\n";
-            text += model.Engine.phase + " THR " + model.Engine.throttle + " RPM E " + (model.Engine.rotspeed * 9.5493).ToStr() + " RPM R " + (model.Rotors[0].RotSpeed * 9.5493).ToStr() + "\n";
+            text += model.Engine.phase + " THR " + model.Engine.throttle + " RPM E " + (model.Engine.RotSpeed * 9.5493).ToStr() + " RPM R " + (model.Rotors[0].RotSpeed * 9.5493).ToStr() + "\n";
             if (LeftBrake > 0.01f || RightBrake > 0.01f) text += "BRAKE\n";
             debugText.text = text;
         }
