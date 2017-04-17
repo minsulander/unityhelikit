@@ -38,7 +38,7 @@ public class QuadCopter : Helicopter {
         model.LoadDefault();
         for (var i = 0; i < _model.Rotors.Length; i++) {
             _model.Rotors[i].CopyParameters(rotors);
-            if (i % 2 == 1) _model.Rotors[i].rotdir = -1;
+			_model.Rotors[i].direction = (i % 2 == 1) ? Rotor.Direction.Clockwise : Rotor.Direction.CounterClockwise;
         }
         base.ParametrizeModelsFromUnity();
     }

@@ -8,13 +8,13 @@ using MathNet.Numerics.LinearAlgebra;
 public abstract class Helicopter : MonoBehaviour
 {
 
-    public FlightControlSystem fcs;
+	public bool airStart = true;
+	public Text debugText;
+
+	public FlightControlSystem fcs;
     public Engine engine;
     public GearBox gearBox;
     public Fuselage fuselage;
-    public bool airStart = true;
-
-    public Text debugText;
 
     public abstract HeliSharp.Helicopter model { get; }
 
@@ -175,28 +175,23 @@ public abstract class Helicopter : MonoBehaviour
             //text += "uF " + (int)force.x + " " + (int)force.y + " " + (int)force.z + "\n";
             //text += "uM " + (int)torque.x + " " + (int)torque.y + " " + (int)torque.z + "\n";
             text += "WASH " + (int)model.Rotors[0].WashVelocity.Norm(1) + " CONE " + (int)(model.Rotors[0].beta_0 * 180 / Mathf.PI) + "\n";
-            text += model.Engine.phase + " THR " + model.Engine.throttle + " RPM E " + (model.Engine.RotSpeed * 9.5493).ToStr() + " RPM R " + (model.Rotors[0].RotSpeed * 9.5493).ToStr() + "\n";
+            text += model.Engine.phase + " THR " + model.Engine.throttle + " RPM E " + model.Engine.RPM.ToStr() + " RPM R " + model.Rotors[0].RPM.ToStr() + "\n";
             if (LeftBrake > 0.01f || RightBrake > 0.01f) text += "BRAKE\n";
             debugText.text = text;
         }
 
         // Update dynamics
-        model.Update(Time.fixedDeltaTime);
+		try {
+        	model.Update(Time.fixedDeltaTime);
+		} catch (ModelException e) {
+			Debug.LogException(e);
+			enabled = false;
+			return;
+		}
 
         // Set force and torque/moment in rigid body simulation
         Vector3 force = model.Force.ToUnity();
         Vector3 torque = -model.Torque.ToUnity(); // minus because Unity uses a left-hand coordinate system
-        // First sanity check
-        if (float.IsNaN(force.x) || float.IsNaN(force.y) || float.IsNaN(force.z)) {
-            Debug.LogError(name + ": force is NaN");
-            enabled = false;
-            return;
-        }
-        if (float.IsNaN(torque.x) || float.IsNaN(torque.y) || float.IsNaN(torque.z)) {
-            Debug.LogError(name + ": torque is NaN");
-            enabled = false;
-            return;
-        }
         body.AddRelativeForce(force);
         body.AddRelativeTorque(torque);
 
@@ -272,7 +267,7 @@ public abstract class Helicopter : MonoBehaviour
 
     protected void SpinRotor(Transform rotorTransform, Rotor rotor) {
         if (!rotorSpinAngle.ContainsKey(rotor)) rotorSpinAngle[rotor] = 0f;
-        rotorSpinAngle[rotor] += -rotor.rotdir * (float)rotor.RotSpeed * 180f / Mathf.PI * Time.deltaTime;
+		rotorSpinAngle[rotor] += (rotor.direction == Rotor.Direction.CounterClockwise ? -1 : 1) * (float)rotor.RotSpeed * 180f / Mathf.PI * Time.deltaTime;
         while (rotorSpinAngle[rotor] > 360f) rotorSpinAngle[rotor] -= 360f;
         rotorTransform.localRotation = Quaternion.Euler(new Vector3((float)rotor.beta_cos * 180f / Mathf.PI, 0, (float)rotor.beta_sin * 180f / Mathf.PI)) * rotor.Rotation.ToUnity()
             * Quaternion.AngleAxis(rotorSpinAngle[rotor], new Vector3(0, 1, 0));
@@ -280,7 +275,7 @@ public abstract class Helicopter : MonoBehaviour
 
     public virtual void OnDrawGizmosSelected() {
         if (model == null) return;
-        float visualizationScale = (float)(model.Rotors[0].R / model.Mass / 9.81);
+        float visualizationScale = (float)(model.Rotors[0].radius / model.Mass / 9.81);
         foreach (var submodelName in submodelTransforms.Keys) {
             var submodel = model.SubModels[submodelName];
             var childTransform = submodelTransforms[submodelName];
@@ -297,10 +292,10 @@ public abstract class Helicopter : MonoBehaviour
         for (int i = 0; i < numSegments; i++) {
             float step = 360f / numSegments;
             float a = i * step;
-            Vector3 p1 = new Vector3((float)rotor.R * Mathf.Cos(a * Mathf.PI / 180f), (float)rotor.R * Mathf.Sin((float)rotor.beta_0), (float)rotor.R * Mathf.Sin(a * Mathf.PI / 180f));
-            Vector3 p2 = new Vector3((float)rotor.R * Mathf.Cos((a + step) * Mathf.PI / 180f), (float)rotor.R * Mathf.Sin((float)rotor.beta_0), (float)rotor.R * Mathf.Sin((a + step) * Mathf.PI / 180f));
+            Vector3 p1 = new Vector3((float)rotor.radius * Mathf.Cos(a * Mathf.PI / 180f), (float)rotor.radius * Mathf.Sin((float)rotor.beta_0), (float)rotor.radius * Mathf.Sin(a * Mathf.PI / 180f));
+            Vector3 p2 = new Vector3((float)rotor.radius * Mathf.Cos((a + step) * Mathf.PI / 180f), (float)rotor.radius * Mathf.Sin((float)rotor.beta_0), (float)rotor.radius * Mathf.Sin((a + step) * Mathf.PI / 180f));
             Debug.DrawLine(rotorTransform.TransformPoint(p1), rotorTransform.TransformPoint(p2), Color.gray);
-            if (i % (numSegments / rotor.Nb) == 0)
+            if (i % (numSegments / rotor.bladeCount) == 0)
                 Debug.DrawLine(rotorTransform.position, rotorTransform.TransformPoint(p1), Color.gray);
 
         }
