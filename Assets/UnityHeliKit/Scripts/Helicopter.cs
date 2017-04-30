@@ -238,7 +238,20 @@ public abstract class Helicopter : MonoBehaviour
             Debug.Log("Transform from submodel: " + childTransform.name);
             childTransform.localPosition = submodel.Translation.ToUnity();
             childTransform.localRotation = submodel.Rotation.ToUnity();
-        }
+
+			if (submodel is Rotor) {
+				BoxCollider collider = childTransform.GetComponent<BoxCollider> ();
+				var sizey = 0.1f;
+				if (collider == null) {
+					collider = childTransform.gameObject.AddComponent<BoxCollider> ();
+				} else {
+					sizey = collider.size.y;
+				}
+				var radius = (float)((Rotor)submodel).radius;
+				var size = Mathf.Sqrt (2 * radius * radius);
+				collider.size = new Vector3 (size, sizey, size);
+			}
+		}
     }
 
     public virtual void ParametrizeModelsFromUnity() {
@@ -272,6 +285,20 @@ public abstract class Helicopter : MonoBehaviour
         rotorTransform.localRotation = Quaternion.Euler(new Vector3((float)rotor.beta_cos * 180f / Mathf.PI, 0, (float)rotor.beta_sin * 180f / Mathf.PI)) * rotor.Rotation.ToUnity()
             * Quaternion.AngleAxis(rotorSpinAngle[rotor], new Vector3(0, 1, 0));
     }
+
+	void OnCollisionEnter(Collision collision) {
+		foreach (var contact in collision.contacts) {
+			if (submodelTransforms.ContainsValue (contact.thisCollider.transform)) {
+				var submodelName = contact.thisCollider.transform.name;
+				var submodel = model.SubModels[submodelName];
+				if (submodel is Rotor && submodel.Enabled) {
+					Debug.Log ("Disabling " + submodelName + " due to collision");
+					contact.thisCollider.enabled = false;
+					submodel.Enabled = false;
+				}
+			}
+		}
+	}
 
     public virtual void OnDrawGizmosSelected() {
         if (model == null) return;
