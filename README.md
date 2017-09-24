@@ -1,5 +1,9 @@
 # UnityHeliKit - a Helicopter Simulation Toolkit for Unity3D
 
+![Exterior screenshot](Screenshots/exterior.jpg)
+
+![Interior screenshot](Screenshots/interior.jpg)
+
 This is a helicopter simulation toolkit for the [Unity3D](http://unity3d.com/) game engine. 
 The idea is to bring the dynamics model [HeliSharp](https://github.com/minsulander/helisharp) into Unity, 
 and also use the Unity Editor for parametrization and visualization of model parameters. 
@@ -21,8 +25,8 @@ You need [Unity3D](http://unity3d.com/). Version 5.5.0 (Windows and Linux) was l
 ## Building and running
 
 Clone or download the project, open it up in Unity, open the example scene and hit run.
-You won't be able to try it out much unless you have a joystick or Xbox controller. You
-will probably need to remap your joystick inputs in the Edit / Project Settings / Input menu.
+You won't be able to try it out much unless you have a joystick or gamepad. Unless you're using an Xbox controller you
+will need to remap your joystick inputs in the Edit / Project Settings / Input menu.
 
 ## Please get in touch
 

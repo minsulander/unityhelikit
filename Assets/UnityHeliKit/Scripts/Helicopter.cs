@@ -74,12 +74,12 @@ public abstract class Helicopter : MonoBehaviour
             body.mass = (float)model.Mass;
             body.drag = body.angularDrag = 0f;
         }
-        Transform centerOfMassTransform = transform.FindChild("CenterOfMass");
+        Transform centerOfMassTransform = transform.Find("CenterOfMass");
         if (centerOfMassTransform != null) body.centerOfMass = centerOfMassTransform.localPosition;
         foreach (var submodelName in model.SubModels.Keys) {
             if (submodelName == "Gravity") continue;
             var submodel = model.SubModels[submodelName];
-            var childTransform = transform.FindChild(submodelName);
+            var childTransform = transform.Find(submodelName);
             if (childTransform == null) {
                 var childObject = new GameObject(submodelName);
                 childTransform = childObject.transform;
