@@ -1,7 +1,6 @@
 # UnityHeliKit - a Helicopter Simulation Toolkit for Unity3D
 
 ![Exterior screenshot](Screenshots/exterior.jpg)
-
 ![Interior screenshot](Screenshots/interior.jpg)
 
 This is a helicopter simulation toolkit for the [Unity3D](http://unity3d.com/) game engine. 
