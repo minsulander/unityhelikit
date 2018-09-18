@@ -50,7 +50,7 @@ public static class MathNetUnityConversions
 		double m12 = 2.0 * (tmp1 - tmp2)*invs;
 
 		return Matrix<double>.Build.DenseOfArray(new double[,] {
-			{ m22, m20, -m21 },  //z  =  zz   zx  -zy     z  
+			{ m22, m20, -m21 },  //z  =  zz   zx  -zy     z
 			{ m02, m00, -m01 },  //x  =  xz   xx  -xy  *  x
 			{ -m12, -m10, m11 }  //-y = -yz  -yx   yy    -y
 		});

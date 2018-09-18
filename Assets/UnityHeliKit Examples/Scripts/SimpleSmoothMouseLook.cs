@@ -23,14 +23,23 @@ public class SimpleSmoothMouseLook : MonoBehaviour
 
 	void Start()
 	{
-		// Set target direction to the camera's initial orientation.
-		targetDirection = transform.localRotation.eulerAngles;
+        // Set target direction to the camera's initial orientation.
+        targetDirection = transform.localRotation.eulerAngles;
 
-		// Set target direction for the character body to its inital state.
-		if (characterBody) targetCharacterDirection = characterBody.transform.localRotation.eulerAngles;
+        // Set target direction for the character body to its inital state.
+        if (characterBody) targetCharacterDirection = characterBody.transform.localRotation.eulerAngles;
+
+        Init();
 	}
 
-	void Update()
+    public void Init()
+    {
+
+        _mouseAbsolute = Vector2.zero;
+        _smoothMouse = Vector2.zero;
+    }
+
+    void Update()
 	{
         if (!GetComponent<Camera>().enabled) return;
         if (Time.timeScale < 1e-5f) return;
@@ -85,5 +94,12 @@ public class SimpleSmoothMouseLook : MonoBehaviour
 			var yRotation = Quaternion.AngleAxis(_mouseAbsolute.x, transform.InverseTransformDirection(Vector3.up));
 			transform.localRotation *= yRotation;
 		}
+	}
+
+	public void Reset() {
+		var euler = transform.localRotation.eulerAngles;
+		if (euler.x > 180) euler.x -= 360;
+		_mouseAbsolute = new Vector2(euler.y, -euler.x);
+		_smoothMouse = Vector2.zero;
 	}
 }

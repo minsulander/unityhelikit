@@ -27,7 +27,7 @@ public class HelicopterSound : MonoBehaviour {
 	}
 
 	void Update () {
-		if (helicopter.isActiveAndEnabled && !helicopter.IsTrimming) {
+		if (helicopter.isActiveAndEnabled && helicopter.IsSimulating) {
 			foreach (var rotorSound in rotorSounds) {
 				rotorSound.pitch = (float)(model.Rotors[0].RotSpeed / model.Rotors[0].designOmega);
 				if (rotorSound.isActiveAndEnabled && !rotorSound.isPlaying) rotorSound.Play();
@@ -39,7 +39,7 @@ public class HelicopterSound : MonoBehaviour {
 					if (rotorSlapSounds[i].isActiveAndEnabled && !rotorSlapSounds[i].isPlaying && rotorSlapSounds[i].volume > 1e-5f) rotorSlapSounds[i].Play();
                 }
                 if (rotorDownwashSounds.Length > i) {
-                    rotorDownwashSounds[i].volume = Mathf.Clamp01(((float)model.Rotors[0].WashVelocity.Norm(1) - rotorDownwashMinVelocity) / (rotorDownwashMaxVelocity - rotorDownwashMinVelocity));
+                    rotorDownwashSounds[i].volume = Mathf.Clamp01(((float)model.Rotors[0].WashVelocity.Norm(2) - rotorDownwashMinVelocity) / (rotorDownwashMaxVelocity - rotorDownwashMinVelocity));
 					if (rotorDownwashSounds[i].isActiveAndEnabled && !rotorDownwashSounds[i].isPlaying && rotorDownwashSounds[i].volume > 1e-5f) rotorDownwashSounds[i].Play();
                 }
             }
@@ -58,7 +58,7 @@ public class HelicopterSound : MonoBehaviour {
 				}
 			}
             if (windSound != null) {
-                windSound.volume = Mathf.Clamp01((float)model.Fuselage.Velocity.Norm(1) / maxWindSpeed);
+                windSound.volume = Mathf.Clamp01((float)model.Fuselage.Velocity.Norm(2) / maxWindSpeed);
 				if (windSound.isActiveAndEnabled && !windSound.isPlaying && windSound.volume > 1e-5f) windSound.Play();
             }
 			lastEnginePhase = model.Engine.phase;

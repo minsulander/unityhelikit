@@ -4,17 +4,23 @@ using UnityEngine;
 using UnityEngine.UI;
 using HeliSharp;
 using MathNet.Numerics.LinearAlgebra;
+using UnityEngine.Profiling;
 
 public abstract class Helicopter : MonoBehaviour
 {
 
 	public bool airStart = true;
+    public bool playerControlled = true;
+    public float groundHeightOffset;
 	public Text debugText;
 
 	public FlightControlSystem fcs;
     public Engine engine;
     public GearBox gearBox;
     public Fuselage fuselage;
+
+    public List<Collider> groundCheckColliders;
+    private List<Collider> groundContactColliders = new List<Collider>();
 
     public abstract HeliSharp.Helicopter model { get; }
 
@@ -30,6 +36,8 @@ public abstract class Helicopter : MonoBehaviour
             }
         }
     }
+    public bool IsOnGround { get; private set; }
+    public bool IsSimulating { get; private set; }
 
     // "Relay" controls to dynamics model
     public float Throttle {
@@ -62,6 +70,8 @@ public abstract class Helicopter : MonoBehaviour
     private Dictionary<Rotor, float> rotorSpinAngle = new Dictionary<Rotor, float>();
 
     public virtual void Start () {
+        GameObject textObject = GameObject.Find("Aircraft Debug Text");
+        if (debugText == null && textObject != null) debugText = textObject.GetComponent<Text>();
         FindComponents();
         ParametrizeModelsFromUnity();
         Trim(true);
@@ -124,14 +134,15 @@ public abstract class Helicopter : MonoBehaviour
     }
 
     public void ToggleEngine() {
-        if (model.Engine.phase == Engine.Phase.CUTOFF) {
+		if (model.Engine.phase != Engine.Phase.CUTOFF) {
+			model.Engine.phase = Engine.Phase.CUTOFF;
+		} else {
            model.Engine.phase = Engine.Phase.START;
-        } else if (model.Engine.phase == Engine.Phase.RUN) {
-            model.Engine.phase = Engine.Phase.CUTOFF;
         }
     }
 
     public virtual void FixedUpdate() {
+        IsSimulating = false;
         if (body == null) return;
         lock (trimThreadLock) {
             if (trimThread != null) {
@@ -145,27 +156,43 @@ public abstract class Helicopter : MonoBehaviour
                 }
             }
         }
+        if (IsOnGround && model.Engine.phase == Engine.Phase.CUTOFF && model.Engine.RPM < 1.0 && !playerControlled) return;
+
+        // No returns beyond this point
+        IsSimulating = true;
 
         // Set velocities and attitues from rigid body simulation
-        model.Velocity = transform.InverseTransformDirection(body.velocity).FromUnity();
+        var localVelocity = transform.InverseTransformDirection(body.velocity);
+        model.Velocity = localVelocity.FromUnity();
         model.AngularVelocity = -transform.InverseTransformDirection(body.angularVelocity).FromUnity();
         model.Translation = transform.position.FromUnity();
         model.Rotation = transform.rotation.FromUnity();
+        var euler = body.rotation.eulerAngles * Mathf.PI / 180;
+        model.FCS.HorizonVelocity = (Quaternion.Euler(0, -euler.y, 0) * body.velocity).FromUnity();
+        model.FCS.IsOnGround = IsOnGround;
 
         // Set height from ray trace (for ground effect)
         model.Height = GetHeight() ?? 999;
 
         if (model.Collective < -1) model.Collective = -1;
 
-        if (debugText != null) {
+        if (debugText != null && playerControlled) {
             string text = "";
             text += "COLL " + model.Collective.ToStr() + " LONG " + model.LongCyclic.ToStr() + " LAT " + model.LatCyclic.ToStr() + " PED " + model.Pedal.ToStr() + "\n";
+            text += "CMD  " + model.FCS.CollectiveCommand.ToStr() + " LONG " + model.FCS.LongCommand.ToStr() + " LAT " + model.FCS.LatCommand.ToStr() + " PED " + model.FCS.PedalCommand.ToStr() + "\n";
+            text += "OUT " + model.FCS.Collective.ToStr() + " LONG " + model.FCS.LongCyclic.ToStr() + " LAT " + model.FCS.LatCyclic.ToStr() + " PED " + model.FCS.Pedal.ToStr() + "\n";
             text += "ATT x " + Mathf.Round((float)model.Attitude.x() * 180f / Mathf.PI) + " y " + Mathf.Round((float)model.Attitude.y() * 180f / Mathf.PI) + " z " + Mathf.Round((float)model.Attitude.z() * 180f / Mathf.PI) + "\n";
+			text += "TATTx " + Mathf.Round((float)model.FCS.TrimAttitude.x() * 180f / Mathf.PI) + " y " + Mathf.Round((float)model.FCS.TrimAttitude.y() * 180f / Mathf.PI) + "\n";
             //text += "PITCH " + (model.PitchAngle * 180.0 / Mathf.PI).ToStr() + " ROLL " + (model.RollAngle * 180.0 / Mathf.PI).ToStr() + "\n";
-            text += "ALT " + Mathf.Round(transform.position.y) + "m HEIGHT " + Mathf.Round((float)model.Height) + "m\n";
-            text += "SPEED " + Mathf.Round((float)model.Velocity.x() * 1.9438f) + "kts LAT " + Mathf.Round((float)model.Velocity.y() * 1.9438f) + " kts VERT " + Mathf.Round(body.velocity.y * 197f) + " fpm\n";
-            //text += "VEL " + (int)model.Velocity.x() + " " + (int)model.Velocity.y() + " " + (int)model.Velocity.z() + "\n";
-            text += "AVEL " + (int)(model.AngularVelocity.x() * 100) + " " + (int)(model.AngularVelocity.y() * 100) + " " + (int)(model.AngularVelocity.z() * 100) + "\n";
+            text += "ALT " + Mathf.Round(transform.position.y) + "m HEIGHT " + string.Format("{0:0.00}", (model.Height - groundHeightOffset)) + "m" + (IsOnGround ? " GROUND" : "") + "\n";
+            text += "SPEED " + Mathf.Round((float)model.Velocity.x() * 1.9438f) + "kts"
+                + (Mathf.Abs((float)model.FCS.DesiredSpeed) >= 0.1f ? " (" + Mathf.Round((float)model.FCS.DesiredSpeed * 1.9438f) + "kts)" : "")
+                + " LAT " + Mathf.Round((float)model.Velocity.y() * 1.9438f) + " kts VERT " + Mathf.Round(body.velocity.y * 197f) + " fpm\n";
+			//text += "VEL " + model.Velocity.x().ToStr() + " " + model.Velocity.y().ToStr() + " " + model.Velocity.z().ToStr() + "\n";
+            //text += "BVEL " + ((double)localVelocity.z).ToStr() + " " + ((double)localVelocity.x).ToStr() + " " + ((double)-localVelocity.y).ToStr() + "\n";
+			//text += "FVEL " + model.FCS.Velocity.x().ToStr() + " " + model.FCS.Velocity.y().ToStr() + " " + model.FCS.Velocity.z().ToStr() + "\n";
+			//text += "HVEL " + model.FCS.HorizonVelocity.x().ToStr() + " " + model.FCS.HorizonVelocity.y().ToStr() + " " + model.FCS.HorizonVelocity.z().ToStr() + "\n";
+            //text += "AVEL " + (int)(model.AngularVelocity.x() * 100) + " " + (int)(model.AngularVelocity.y() * 100) + " " + (int)(model.AngularVelocity.z() * 100) + "\n";
             //text += "F " + (int)model.Force.x() + " " + (int)model.Force.y() + " " + (int)model.Force.z() + "\n";
             //text += "M " + (int)model.Torque.x() + " " + (int)model.Torque.y() + " " + (int)model.Torque.z() + "\n";
             //text += "M/R F " + (int)mainRotor.Force.x() + " " + (int)mainRotor.Force.y() + " " + (int)mainRotor.Force.z() + "\n";
@@ -174,20 +201,23 @@ public abstract class Helicopter : MonoBehaviour
             //text += "FUSE Mz " + (int)fuselage.Torque.z () + "\n";
             //text += "uF " + (int)force.x + " " + (int)force.y + " " + (int)force.z + "\n";
             //text += "uM " + (int)torque.x + " " + (int)torque.y + " " + (int)torque.z + "\n";
-            text += "WASH " + (int)model.Rotors[0].WashVelocity.Norm(1) + " CONE " + (int)(model.Rotors[0].beta_0 * 180 / Mathf.PI) + "\n";
-            text += model.Engine.phase + " THR " + model.Engine.throttle + " RPM E " + model.Engine.RPM.ToStr() + " RPM R " + model.Rotors[0].RPM.ToStr() + "\n";
+            text += "WASH " + (int)model.Rotors[0].WashVelocity.Norm(2) + " CONE " + (int)(model.Rotors[0].beta_0 * 180 / Mathf.PI) + "\n";
+            text += model.Engine.phase + " THR " + model.Engine.throttle + " RPM E " + model.Engine.RPM.ToStr() + " RPM R " + model.Rotors[0].RPM.ToStr() + " Q " + model.Engine.Qeng.ToStr() + "\n";
             if (LeftBrake > 0.01f || RightBrake > 0.01f) text += "BRAKE\n";
             debugText.text = text;
         }
 
         // Update dynamics
-		try {
+        Profiler.BeginSample("Helicopter.ModelUpdate", this);
+        try
+        {
         	model.Update(Time.fixedDeltaTime);
 		} catch (ModelException e) {
 			Debug.LogException(e);
 			enabled = false;
 			return;
 		}
+        Profiler.EndSample();
 
         // Set force and torque/moment in rigid body simulation
         Vector3 force = model.Force.ToUnity();
@@ -208,14 +238,35 @@ public abstract class Helicopter : MonoBehaviour
                 SpinRotor(childTransform, (Rotor)submodel);
             }
         }
+
+        // Check ground contact
+        if (groundCheckColliders == null || groundCheckColliders.Count == 0) {
+            IsOnGround = model.Height - groundHeightOffset <= 0.2f;
+        } else {
+            // Need to check if ground contact object was destroyed...
+            groundContactColliders.RemoveAll(c => c == null);
+            IsOnGround = groundContactColliders.Count > 0;
+        }
     }
 
     public float? GetHeight() {
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, new Vector3(0,-1,0), out hit, 1000f)) {
-            return transform.position.y - hit.point.y;
+        float? max = null;
+        if (Physics.Raycast(transform.position + new Vector3(0, -groundHeightOffset/2f, 0), new Vector3(0,-1f,0), out hit, 1000f)) {
+            var height = transform.position.y - hit.point.y;
+            if ((!max.HasValue || height > max.Value) && height < 1000f-groundHeightOffset) max = height; 
         }
-        return null;
+        // try forward to avoid hitting sling load
+        if (Physics.Raycast(transform.position + new Vector3(0, -groundHeightOffset/2f, 3f), new Vector3(0,-1f,0), out hit, 1000f)) {
+            var height = transform.position.y - hit.point.y;
+            if ((!max.HasValue || height > max.Value) && height < 1000f-groundHeightOffset) max = height; 
+        }
+        // try right to avoid hitting sling load
+        if (Physics.Raycast(transform.position + new Vector3(3f, -groundHeightOffset/2f, 0), new Vector3(0,-1f,0), out hit, 1000f)) {
+            var height = transform.position.y - hit.point.y;
+            if ((!max.HasValue || height > max.Value) && height < 1000f-groundHeightOffset) max = height; 
+        }
+        return max;
     }
 
     public virtual void ParametrizeUnityFromModel() {
@@ -251,7 +302,7 @@ public abstract class Helicopter : MonoBehaviour
 				var size = Mathf.Sqrt (2 * radius * radius);
 				collider.size = new Vector3 (size, sizey, size);
 			}
-		}
+        }
     }
 
     public virtual void ParametrizeModelsFromUnity() {
@@ -272,7 +323,6 @@ public abstract class Helicopter : MonoBehaviour
         foreach (var submodelName in submodelTransforms.Keys) {
             var submodel = model.SubModels[submodelName];
             var childTransform = submodelTransforms[submodelName];
-            Debug.Log("Submodel from transform: " + childTransform.name);
             submodel.Translation = childTransform.localPosition.FromUnity();
             submodel.Rotation = childTransform.localRotation.FromUnity();
         }
@@ -286,22 +336,8 @@ public abstract class Helicopter : MonoBehaviour
             * Quaternion.AngleAxis(rotorSpinAngle[rotor], new Vector3(0, 1, 0));
     }
 
-	void OnCollisionEnter(Collision collision) {
-		foreach (var contact in collision.contacts) {
-			if (submodelTransforms.ContainsValue (contact.thisCollider.transform)) {
-				var submodelName = contact.thisCollider.transform.name;
-				var submodel = model.SubModels[submodelName];
-				if (submodel is Rotor && submodel.Enabled) {
-					Debug.Log ("Disabling " + submodelName + " due to collision");
-					contact.thisCollider.enabled = false;
-					submodel.Enabled = false;
-				}
-			}
-		}
-	}
-
     public virtual void OnDrawGizmosSelected() {
-        if (model == null) return;
+        if (model == null || !IsSimulating) return;
         float visualizationScale = (float)(model.Rotors[0].radius / model.Mass / 9.81);
         foreach (var submodelName in submodelTransforms.Keys) {
             var submodel = model.SubModels[submodelName];
@@ -339,4 +375,27 @@ public abstract class Helicopter : MonoBehaviour
         Debug.DrawLine(transform.TransformPoint(bl), transform.TransformPoint(tl), Color.gray);
     }
 
+    void OnCollisionEnter(Collision collision) {
+		foreach (var contact in collision.contacts) {
+			if (submodelTransforms.ContainsValue (contact.thisCollider.transform)) {
+				var submodelName = contact.thisCollider.transform.name;
+				var submodel = model.SubModels[submodelName];
+				if (submodel is Rotor && submodel.Enabled) {
+					Debug.Log ("Disabling " + submodelName + " due to collision");
+					contact.thisCollider.enabled = false;
+					submodel.Enabled = false;
+				}
+			}
+            if (groundCheckColliders.Contains(contact.thisCollider)) {
+                groundContactColliders.Add(contact.otherCollider);
+                break;
+            }
+        }
+        IsOnGround = groundContactColliders.Count > 0;
+    }
+
+    void OnCollisionExit(Collision collision) {
+        groundContactColliders.Remove(collision.collider);
+        IsOnGround = groundContactColliders.Count > 0;
+    }
 }
