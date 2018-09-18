@@ -19,7 +19,7 @@ Be aware that this project is in an early stage of development.
 
 ## Prerequisites
 
-You need [Unity3D](http://unity3d.com/). Version 5.5.0 (Windows and Linux) was last tested.
+You need [Unity3D](http://unity3d.com/). Version 2018.2.4 (Windows and Linux) was last tested.
 
 ## Building and running
 
